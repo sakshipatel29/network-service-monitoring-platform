@@ -6,6 +6,8 @@ from app.redis_client import redis_client
 
 from app.models import Service
 from app.storage import services
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from fastapi.responses import Response
 
 app = FastAPI(
     title="Network Service Monitoring Platform",
@@ -140,3 +142,10 @@ def get_alerts():
         "total_alerts": len(alerts),
         "alerts": alerts
     }
+
+@app.get("/metrics")
+def metrics():
+    return Response(
+        content=generate_latest(),
+        media_type=CONTENT_TYPE_LATEST
+    )
