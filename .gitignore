@@ -23,3 +23,5 @@ venv/
 # Coverage
 .coverage
 htmlcov/
+
+.env.example
