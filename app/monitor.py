@@ -5,7 +5,7 @@ import httpx
 
 from app.redis_client import redis_client
 from app.logging_config import logger
-
+from app.metrics import SERVICE_CHECK_TOTAL, SERVICE_UP, ALERT_TOTAL
 
 def get_registered_services():
     stored_services = redis_client.lrange("services", 0, -1)
@@ -31,6 +31,15 @@ def check_single_service(service):
             "status_code": response.status_code,
             "checked_at": checked_at
         }
+
+        SERVICE_CHECK_TOTAL.labels(
+            service_name=result["service_name"],
+            status=result["status"]
+        ).inc()
+
+        SERVICE_UP.labels(
+            service_name=result["service_name"]
+        ).set(1 if result["status"] == "healthy" else 0)
 
         logger.info(
             f"Checked service={result['service_name']} status={result['status']} url={result['url']}"
@@ -58,6 +67,11 @@ def check_single_service(service):
             "message": f"Alert: {service['service_name']} is {result['status']}",
             "created_at": checked_at
         }
+
+        ALERT_TOTAL.labels(
+            service_name=service["service_name"],
+            status=result["status"]
+        ).inc()
 
         logger.warning(
             f"Alert generated for service={service['service_name']} status={result['status']}"
