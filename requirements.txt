@@ -7,3 +7,4 @@ httpx
 watchtower
 prometheus-client
 python-dotenv
+pytest
