@@ -151,7 +151,11 @@ python -m uvicorn app.main:app --reload
 Open:
 
 ```text
-http://127.0.0.1:8000/docs
+## Live Deployment
+
+- FastAPI API: http://3.133.84.77:8000/docs
+- Prometheus: http://3.133.84.77:9090
+- Grafana Dashboard: http://3.133.84.77:3000
 ```
 
 ---
@@ -163,29 +167,3 @@ docker compose up --build
 ```
 
 ---
-
-## Future Improvements
-
-- Email alerts
-- Slack notifications
-- AWS CloudWatch Metrics
-- Prometheus integration
-- Grafana dashboards
-- Kubernetes deployment
-- Service dependency mapping
-- Authentication and RBAC
-
----
-
-## Resume Impact
-
-This project demonstrates:
-
-- Backend API Development
-- Distributed Service Monitoring
-- Observability Engineering
-- Redis Data Modeling
-- Docker Containerization
-- AWS Logging Integration
-- Reliability Engineering Concepts
-- Production Monitoring Workflows
