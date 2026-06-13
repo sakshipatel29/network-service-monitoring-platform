@@ -90,3 +90,39 @@ def get_service_history(service_name: str):
         "total_checks": len(history),
         "history": history
     }
+
+@app.get("/services/{service_name}/uptime")
+def get_service_uptime(service_name: str):
+    stored_history = redis_client.lrange(
+        f"history:{service_name}",
+        0,
+        -1
+    )
+
+    history = [
+        json.loads(item)
+        for item in stored_history
+    ]
+
+    if not history:
+        return {
+            "service_name": service_name,
+            "message": "No monitoring history found"
+        }
+
+    healthy_count = sum(
+        1 for item in history
+        if item["status"] == "healthy"
+    )
+
+    uptime_percentage = round(
+        (healthy_count / len(history)) * 100,
+        2
+    )
+
+    return {
+        "service_name": service_name,
+        "total_checks": len(history),
+        "healthy_checks": healthy_count,
+        "uptime_percentage": uptime_percentage
+    }
