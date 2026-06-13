@@ -45,6 +45,20 @@ def check_single_service(service):
         json.dumps(result)
     )
 
+    if result["status"] != "healthy":
+        alert = {
+            "service_name": service["service_name"],
+            "url": service["url"],
+            "status": result["status"],
+            "message": f"Alert: {service['service_name']} is {result['status']}",
+            "created_at": checked_at
+        }
+
+        redis_client.lpush(
+            "alerts",
+            json.dumps(alert)
+        )
+
     redis_client.ltrim(
         f"history:{service['service_name']}",
         0,

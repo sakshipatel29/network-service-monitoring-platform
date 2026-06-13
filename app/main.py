@@ -126,3 +126,17 @@ def get_service_uptime(service_name: str):
         "healthy_checks": healthy_count,
         "uptime_percentage": uptime_percentage
     }
+
+@app.get("/alerts")
+def get_alerts():
+    stored_alerts = redis_client.lrange("alerts", 0, -1)
+
+    alerts = [
+        json.loads(alert)
+        for alert in stored_alerts
+    ]
+
+    return {
+        "total_alerts": len(alerts),
+        "alerts": alerts
+    }
