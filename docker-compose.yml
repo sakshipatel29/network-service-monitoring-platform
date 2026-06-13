@@ -7,6 +7,9 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - ENABLE_CLOUDWATCH=false
+      - CLOUDWATCH_LOG_GROUP=network-service-monitoring-platform
+      - CLOUDWATCH_STREAM_NAME=fastapi-monitoring-service
     depends_on:
       - redis
 

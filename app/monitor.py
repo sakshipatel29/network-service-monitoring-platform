@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import httpx
 
 from app.redis_client import redis_client
+from app.logging_config import logger
 
 
 def get_registered_services():
@@ -31,6 +32,10 @@ def check_single_service(service):
             "checked_at": checked_at
         }
 
+        logger.info(
+            f"Checked service={result['service_name']} status={result['status']} url={result['url']}"
+        )
+
     except Exception as e:
         result = {
             "service_name": service["service_name"],
@@ -53,6 +58,10 @@ def check_single_service(service):
             "message": f"Alert: {service['service_name']} is {result['status']}",
             "created_at": checked_at
         }
+
+        logger.warning(
+            f"Alert generated for service={service['service_name']} status={result['status']}"
+        )
 
         redis_client.lpush(
             "alerts",
