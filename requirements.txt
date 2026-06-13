@@ -6,3 +6,4 @@ boto3
 httpx
 watchtower
 prometheus-client
+python-dotenv
