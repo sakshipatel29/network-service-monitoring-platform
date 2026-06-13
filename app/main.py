@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 import httpx
 import json
-
+from app.monitor import check_all_services
 from app.redis_client import redis_client
+
 from app.models import Service
 from app.storage import services
 
@@ -64,42 +65,28 @@ def get_services():
 
 @app.get("/services/check")
 def check_services_health():
-    stored_services = redis_client.lrange(
-        "services",
-        0,
-        -1
-    )
-
-    services = [
-        json.loads(service)
-        for service in stored_services
-    ]
-
-    results = []
-
-    for service in services:
-        try:
-            response =  httpx.get(
-                        service["url"],
-                        timeout=5
-            )
-
-            results.append({
-                "service_name": service["service_name"],
-                "url": service["url"],
-                "status_code": response.status_code,
-                "status": "healthy" if response.status_code == 200 else "unhealthy"
-            })
-
-        except Exception as e:
-            results.append({
-                "service_name": service["service_name"],
-                "url": service["url"],
-                "status": "unreachable",
-                "error": str(e)
-            })
+    results = check_all_services()
 
     return {
         "total_checked": len(results),
         "results": results
+    }
+
+@app.get("/services/{service_name}/history")
+def get_service_history(service_name: str):
+    stored_history = redis_client.lrange(
+        f"history:{service_name}",
+        0,
+        -1
+    )
+
+    history = [
+        json.loads(item)
+        for item in stored_history
+    ]
+
+    return {
+        "service_name": service_name,
+        "total_checks": len(history),
+        "history": history
     }
