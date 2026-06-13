@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
+import httpx
 
 app = FastAPI(
     title="Network Service Monitoring Platform",
@@ -40,4 +41,37 @@ def get_services():
     return {
         "total_services": len(services),
         "services": services
+    }
+
+@app.get("/services/check")
+def check_services_health():
+    results = []
+
+    for service in services:
+        try:
+            response = httpx.get(service.url, timeout=5)
+
+            if response.status_code == 200:
+                status = "healthy"
+            else:
+                status = "unhealthy"
+
+            results.append({
+                "service_name": service.service_name,
+                "url": service.url,
+                "status_code": response.status_code,
+                "status": status
+            })
+
+        except Exception as e:
+            results.append({
+                "service_name": service.service_name,
+                "url": service.url,
+                "status": "unreachable",
+                "error": str(e)
+            })
+
+    return {
+        "total_checked": len(results),
+        "results": results
     }
