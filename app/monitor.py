@@ -6,7 +6,7 @@ import httpx
 from app.redis_client import redis_client
 from app.logging_config import logger
 from app.metrics import SERVICE_CHECK_TOTAL, SERVICE_UP, ALERT_TOTAL
-from app.notifications import send_slack_alert
+from app.notifications import send_slack_alert, send_email_alert
 
 def get_registered_services():
     stored_services = redis_client.lrange("services", 0, -1)
@@ -84,7 +84,7 @@ def check_single_service(service):
         )
 
         send_slack_alert(alert)
-
+        send_email_alert(alert)
 
 def check_all_services():
     services = get_registered_services()
